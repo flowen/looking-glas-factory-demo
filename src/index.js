@@ -17,16 +17,8 @@ import WireframeG from './objects/WireframeG'
 import OrbitControls from './controls/OrbitControls'
 import PPmanager from './controls/PostprocessingManager'
 
-/* Custom settings */
-const SETTINGS = {
-  useComposer: true,
-  tsmooth: 0.75,
-  focalDistance: 35,
-}
-
 let time = 0
 let tprev = 0
-let stats
 
 /* Init renderer and canvas */
 const container = document.getElementsByTagName('main')[0]
@@ -69,7 +61,7 @@ backLight.position.z = 65
 scene.add(frontLight, backLight)
 
 /* Actual content of the scene */
-const customG = new CustomG(7)
+const customG = new CustomG()
 scene.add(customG)
 
 const wireframeG = new WireframeG(200, 40)
@@ -104,26 +96,9 @@ preloader
 
     screenStart.classList.add('hidden')
 
-    // audio.play()
-    // animate()
+    audio.play()
+    animate()
   })
-
-/* setup GUI and Stats monitor */
-if (DEVELOPMENT) {
-  const dat = require('dat.gui')
-  const gui = new dat.GUI({ name: 'GUI' })
-
-  gui.add(SETTINGS, 'useComposer')
-
-  // const Stats = require('stats.js')
-  // stats = new Stats()
-  // stats.showPanel(0)
-  // container.appendChild(stats.domElement)
-
-  // stats.domElement.style.position = 'absolute'
-  // stats.domElement.style.top = 0
-  // stats.domElement.style.left = 0
-}
 
 /**
   Resize canvas
@@ -147,8 +122,6 @@ function animate() {
   Render loop
 */
 function render() {
-  // if (DEVELOPMENT) stats.begin()
-
   holoplay.render()
 
   const freqs = audioUtil.frequencies()
@@ -186,14 +159,7 @@ function render() {
   )
   PPmanager.bloomControls(tMath.mapLinear(lowAvg, 0, 1, 0.0001, 1))
 
-  if (SETTINGS.useComposer) {
-    composer.render()
-  } else {
-    renderer.clear()
-    renderer.render(scene, camera)
-  }
-
-  // if (DEVELOPMENT) stats.end()
+  composer.render()
 }
 
 export { SETTINGS, scene, composer, camera, listener }
