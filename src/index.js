@@ -82,7 +82,9 @@ camera.add(listener)
 window.addEventListener('resize', onResize)
 
 /* Preloader */
-preloader.init(new AudioResolver())
+const screenStart = document.querySelector('.screen--start')
+
+preloader.init(new AudioResolver(screenStart))
 preloader
   .load([
     {
@@ -100,18 +102,10 @@ preloader
     audio.setLoop(false)
     audio.setVolume(1)
 
-    const playButton = document.querySelector('.play')
-    const screenStart = document.querySelector('.screen--start')
+    screenStart.classList.add('hidden')
 
-    const start = () => {
-      audio.play()
-      animate()
-
-      screenStart.classList.add('hidden')
-      playButton.removeEventListener('click', start)
-    }
-
-    playButton.addEventListener('click', start)
+    // audio.play()
+    // animate()
   })
 
 /* setup GUI and Stats monitor */
@@ -121,14 +115,14 @@ if (DEVELOPMENT) {
 
   gui.add(SETTINGS, 'useComposer')
 
-  const Stats = require('stats.js')
-  stats = new Stats()
-  stats.showPanel(0)
-  container.appendChild(stats.domElement)
+  // const Stats = require('stats.js')
+  // stats = new Stats()
+  // stats.showPanel(0)
+  // container.appendChild(stats.domElement)
 
-  stats.domElement.style.position = 'absolute'
-  stats.domElement.style.top = 0
-  stats.domElement.style.left = 0
+  // stats.domElement.style.position = 'absolute'
+  // stats.domElement.style.top = 0
+  // stats.domElement.style.left = 0
 }
 
 /**
@@ -153,7 +147,7 @@ function animate() {
   Render loop
 */
 function render() {
-  if (DEVELOPMENT) stats.begin()
+  // if (DEVELOPMENT) stats.begin()
 
   holoplay.render()
 
@@ -199,7 +193,7 @@ function render() {
     renderer.render(scene, camera)
   }
 
-  if (DEVELOPMENT) stats.end()
+  // if (DEVELOPMENT) stats.end()
 }
 
 export { SETTINGS, scene, composer, camera, listener }
