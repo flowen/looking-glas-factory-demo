@@ -1,0 +1,24 @@
+main {
+  position: relative;
+}
+
+.screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &--start {
+    background: $color-dark;
+    transition: opacity $d-slow $ease-out;
+  }
+}
