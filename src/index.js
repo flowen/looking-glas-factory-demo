@@ -118,9 +118,11 @@ function end() {
   console.log('end')
   screenEnd.classList.remove('hidden')
 }
+
 /**
   RAF
 */
+
 function loop() {
   audio.isPlaying ? (requestAnimationFrame(loop), render()) : end()
 }
