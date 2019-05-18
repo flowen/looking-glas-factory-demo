@@ -102,8 +102,8 @@ preloader
     audio.setBuffer(audioBuffer)
     audio.setLoop(false)
     audio.setVolume(0.5)
-    start()
     // audio.offset = 213 // for testing purposes, starts at end of the track
+    start()
   })
 
 function start() {
@@ -146,13 +146,13 @@ function render() {
   tprev = time * 0.75
   time = 0.0025 + lowAvg + tprev
 
-  const midhighs = midAvg + highAvg
-  midhighs > 1.25 ? (intensity = tMath.mapLinear(midhighs, 0, 1.5, 1, 20)) : (intensity = 1)
+  const midAndHi = midAvg + highAvg
+  midAndHi > 0.96 ? (intensity = tMath.mapLinear(midAndHi, 0, 1.5, 1, 20)) : (intensity = 1)
 
   frontLight.intensity = lowAvg * 2.5 * intensity
   backLight.intensity = highAvg * 3.5 * intensity
 
-  const xRotation = Math.sin(Math.PI * 10) + time
+  const xRotation = Math.sin(Math.PI * 10) + time + intensity
   const yRotation = Math.cos(Math.PI * 7.5) + time
 
   customG.rotation.x = xRotation
