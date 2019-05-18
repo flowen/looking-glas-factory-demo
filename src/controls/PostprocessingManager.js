@@ -8,7 +8,6 @@ import {
   RenderPass,
   SavePass,
   ScanlineEffect,
-  SMAAEffect,
   TextureEffect,
   VignetteEffect,
 } from 'postprocessing'

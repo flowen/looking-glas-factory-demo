@@ -17,9 +17,6 @@ import WireframeG from './objects/WireframeG'
 import OrbitControls from './controls/OrbitControls'
 import PPmanager from './controls/PostprocessingManager'
 
-let time = 0
-let tprev = 0
-
 /* Init renderer and canvas */
 const container = document.getElementsByTagName('main')[0]
 const renderer = new WebGLRenderer()
@@ -62,6 +59,9 @@ scene.add(frontLight, backLight)
 
 /* Actual content of the scene */
 const customG = new CustomG()
+customG.rotation.x = 30
+customG.rotation.y = 45
+customG.rotation.z = 90
 scene.add(customG)
 
 const wireframeG = new WireframeG(200, 40)
@@ -75,6 +75,9 @@ window.addEventListener('resize', onResize)
 
 /* Preloader */
 const screenStart = document.querySelector('.screen--start')
+const screenEnd = document.querySelector('.screen--end')
+const playButton = document.querySelector('.js--play')
+playButton.addEventListener('click', start)
 
 preloader.init(new AudioResolver(screenStart))
 preloader
@@ -82,7 +85,7 @@ preloader
     {
       id: 'soundTrack',
       type: 'audio',
-      url: require('./assets/audio/mert.mp3'),
+      url: require('./assets/audio/lowkolos - receive.mp3'),
     },
   ])
   .then(() => {
@@ -93,12 +96,23 @@ preloader
     audio.setBuffer(audioBuffer)
     audio.setLoop(false)
     audio.setVolume(1)
+    // audio.offset = 213 // for testing purposes, starts at end of the track
 
     screenStart.classList.add('hidden')
 
-    audio.play()
-    animate()
+    start()
   })
+
+function start() {
+  if (!screenEnd.classList.contains('hidden')) screenEnd.classList.add('hidden')
+
+  audio.play()
+  startLoop()
+}
+
+function end() {
+  screenEnd.classList.remove('hidden')
+}
 
 /**
   Resize canvas
@@ -113,33 +127,45 @@ function onResize() {
 /**
   RAF
 */
-function animate() {
-  requestAnimationFrame(animate)
-  render()
+function startLoop() {
+  audio.isPlaying ? (requestAnimationFrame(startLoop), render()) : end()
 }
 
 /**
   Render loop
 */
-function render() {
-  holoplay.render()
 
+let time = 0
+let tprev = 0
+let intensity = 1
+
+function render() {
   const freqs = audioUtil.frequencies()
 
   // update average of bands
+  const subAvg = average(analyser, freqs, bands.sub.from, bands.sub.to)
   const lowAvg = average(analyser, freqs, bands.low.from, bands.low.to)
   const midAvg = average(analyser, freqs, bands.mid.from, bands.mid.to)
   const highAvg = average(analyser, freqs, bands.high.from, bands.high.to)
-  controls.update()
+
+  // console.log(midAvg.toFixed(2), highAvg.toFixed(2), parseFloat(midAvg + highAvg).toFixed(2))
 
   tprev = time * 0.75
   time = 0.0025 + lowAvg + tprev
 
-  frontLight.intensity = lowAvg * 2.5
-  backLight.intensity = highAvg * 3.5
+  const midhighs = midAvg + highAvg
+  midhighs > 1.25 ? (intensity = tMath.mapLinear(midhighs, 0, 1.5, 1, 20)) : (intensity = 1)
 
-  customG.rotation.x = Math.sin(Math.PI * 10) + time
-  customG.rotation.y = Math.cos(Math.PI * 7.5) + time
+  frontLight.intensity = lowAvg * 2.5 * intensity
+  backLight.intensity = highAvg * 3.5 * intensity
+
+  const xRotation = Math.sin(Math.PI * 10) + time
+  const yRotation = Math.cos(Math.PI * 7.5) + time
+
+  customG.rotation.x = xRotation
+  if (subAvg > 0.85) customG.rotation.x += subAvg
+
+  customG.rotation.y = yRotation
   customG.rotation.z += 0.005
 
   wireframeG.rotation.x = Math.sin(Math.PI * 0.5) + time / 10
@@ -150,16 +176,19 @@ function render() {
 
   /* camera */
   camera.lookAt(customG.position)
-  // camera.setFocalLength(SETTINGS.focalDistance)
   camera.setFocalLength(tMath.mapLinear(lowAvg, 0, 1, 20, 30))
 
   PPmanager.blurControls(
     tMath.mapLinear(highAvg, 0, 1, 0.7, 0.9),
     tMath.mapLinear(highAvg, 0, 1, 0.5, 0.7)
   )
-  PPmanager.bloomControls(tMath.mapLinear(lowAvg, 0, 1, 0.0001, 1))
+  PPmanager.bloomControls(tMath.mapLinear(lowAvg, 0, 1, 0.0001, 1), intensity)
+  PPmanager.scanlineControls(tMath.mapLinear(lowAvg, 0, 1, 0.1, 5), intensity)
+
+  controls.update()
 
   composer.render()
+  holoplay.render()
 }
 
 export { SETTINGS, scene, composer, camera, listener }
