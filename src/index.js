@@ -97,13 +97,10 @@ preloader
     audio.setLoop(false)
     audio.setVolume(0.5)
     // audio.offset = 213 // for testing purposes, starts at end of the track
-
-    screenStart.classList.add('hidden')
-
-    start()
   })
 
 function start() {
+  if (!screenStart.classList.contains('hidden')) screenStart.classList.add('hidden')
   if (!screenEnd.classList.contains('hidden')) screenEnd.classList.add('hidden')
 
   audio.play()

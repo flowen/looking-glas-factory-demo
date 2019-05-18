@@ -12,6 +12,11 @@ main {
   max-height: 100vh;
   overflow: hidden;
   transition: opacity $d-slow $ease-out, background $d-slow $ease-out;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
   &.hidden {
     opacity: 0;
@@ -20,15 +25,28 @@ main {
 
   &--start {
     background: $color-dark;
+
+    .percentage,
+    .button {
+      transition: opacity $d-slow $ease-out;
+    }
+
+    .button {
+      opacity: 0;
+    }
+
+    &.loaded {
+      .button {
+        opacity: 1;
+      }
+
+      .percentage {
+        opacity: 0;
+      }
+    }
   }
 
   &--end {
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
     .credits {
       display: flex;
       flex-direction: column;
