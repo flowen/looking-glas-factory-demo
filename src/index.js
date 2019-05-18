@@ -110,9 +110,11 @@ function start() {
   console.log('start')
   if (!screenStart.classList.contains('hidden')) screenStart.classList.add('hidden')
   if (!screenEnd.classList.contains('hidden')) screenEnd.classList.add('hidden')
-  console.log(audio)
 
-  audio.play()
+  setTimeout(() => {
+    audio.play()
+  }, 200)
+  // audio.play()
   loop()
 }
 
