@@ -95,7 +95,7 @@ preloader
     const audioBuffer = preloader.get('soundTrack')
     audio.setBuffer(audioBuffer)
     audio.setLoop(false)
-    audio.setVolume(1)
+    audio.setVolume(0.5)
     // audio.offset = 213 // for testing purposes, starts at end of the track
 
     screenStart.classList.add('hidden')
