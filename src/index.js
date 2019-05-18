@@ -104,7 +104,9 @@ function start() {
   if (!screenEnd.classList.contains('hidden')) screenEnd.classList.add('hidden')
 
   audio.play()
-  startLoop()
+  setTimeout(() => {
+    startLoop()
+  }, 250)
 }
 
 function end() {
