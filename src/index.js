@@ -70,10 +70,16 @@ scene.add(wireframeG)
 /* Audio */
 camera.add(listener)
 
-/* Various event listeners */
+/* Resize canvas */
+function onResize() {
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  composer.setSize(window.innerWidth, window.innerHeight)
+}
 window.addEventListener('resize', onResize)
 
-/* Preloader */
+/* start Preloader */
 const screenStart = document.querySelector('.screen--start')
 const screenEnd = document.querySelector('.screen--end')
 const playButton = document.querySelector('.js--play')
@@ -100,34 +106,23 @@ preloader
   })
 
 function start() {
+  console.log('start')
   if (!screenStart.classList.contains('hidden')) screenStart.classList.add('hidden')
   if (!screenEnd.classList.contains('hidden')) screenEnd.classList.add('hidden')
 
   audio.play()
-  setTimeout(() => {
-    startLoop()
-  }, 250)
+  loop()
 }
 
 function end() {
+  console.log('end')
   screenEnd.classList.remove('hidden')
 }
-
-/**
-  Resize canvas
-*/
-function onResize() {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  composer.setSize(window.innerWidth, window.innerHeight)
-}
-
 /**
   RAF
 */
-function startLoop() {
-  audio.isPlaying ? (requestAnimationFrame(startLoop), render()) : end()
+function loop() {
+  audio.isPlaying ? (requestAnimationFrame(loop), render()) : end()
 }
 
 /**
