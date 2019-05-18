@@ -102,6 +102,7 @@ preloader
     audio.setBuffer(audioBuffer)
     audio.setLoop(false)
     audio.setVolume(0.5)
+    audio.play()
     // audio.offset = 213 // for testing purposes, starts at end of the track
   })
 
@@ -109,8 +110,9 @@ function start() {
   console.log('start')
   if (!screenStart.classList.contains('hidden')) screenStart.classList.add('hidden')
   if (!screenEnd.classList.contains('hidden')) screenEnd.classList.add('hidden')
+  console.log(audio)
 
-  audio.play()
+  // audio.play()
   loop()
 }
 
