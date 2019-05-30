@@ -184,4 +184,4 @@ function render() {
   holoplay.render()
 }
 
-export { SETTINGS, scene, composer, camera, listener }
+export { scene, composer, camera, listener }
