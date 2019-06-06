@@ -33,7 +33,7 @@ const scene = new Scene()
 const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.z = 100
 
-const holoplay = new HoloPlay(scene, camera, renderer)
+const holoplay = new HoloPlay(scene, camera, composer)
 
 /* controls */
 const controls = new OrbitControls(camera, {

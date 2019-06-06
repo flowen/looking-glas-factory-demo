@@ -1,13 +1,23 @@
 //Copyright 2017-2019 Looking Glass Factory Inc.
 //All rights reserved.
 //Unauthorized copying or distribution of this file, and the source code contained herein, is strictly prohibited.
-
 import * as THREE from 'three'
 
-function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiResRender) {
+export default function HoloPlay(
+  scene,
+  camera,
+  renderer,
+  focalPointVector,
+  constantCenter,
+  hiResRender
+) {
+  //Version 0.2.3
+
   var scope = this
   //This makes sure we don't try to render before initializing
   var initialized = false
+
+  var interval
   var lastScreenX
   var lastScreenY
   var outOfWindow = false
@@ -16,6 +26,7 @@ function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiR
   var _renderer, _scene, _camera
   var threeD
   var jsonObj
+  var arraycamera
 
   //Stores the distance to the focal plane
   //Let's us change the rotation or position of the camera and still have it work
@@ -29,7 +40,7 @@ function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiR
   var viewCone, startNear, startFar
 
   //Render scenes
-  var bufferMat, finalRenderScene, finalRenderCamera
+  var bufferMat, bufferSceneRender, finalRenderScene, finalRenderCamera
 
   //Looking Glass buttons
   var buttons, buttonsLastFrame, buttonsAvailable
@@ -109,7 +120,7 @@ function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiR
       tilesY = 9
     }
 
-    const bufferSceneRender = new THREE.WebGLRenderTarget(renderResolution, renderResolution, {
+    bufferSceneRender = new THREE.WebGLRenderTarget(renderResolution, renderResolution, {
       format: THREE.RGBFormat,
     })
 
@@ -140,7 +151,7 @@ function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiR
       }
     }
 
-    const arraycamera = new THREE.ArrayCamera(cameras)
+    arraycamera = new THREE.ArrayCamera(cameras)
 
     //Init shader uniforms
     var uniforms = {
@@ -239,7 +250,7 @@ function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiR
   //******CALIBRATION SETUP******//
 
   function applyCalibration(calibration_obj) {
-    if (calibration_obj === undefined || calibration_obj === '') {
+    if (!calibration_obj) {
       jsonObj = defaultCalibration
       alert(
         'No Looking Glass display connected; using default calibration data. Please ensure your Looking Glass is connected to your computer via USB and reload the page.'
@@ -283,6 +294,8 @@ function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiR
       } else {
         alert(errstr)
       }
+      applyCalibration(null)
+      initialized = true
       finished()
     }, 800)
     ws.onmessage = function(event) {
@@ -299,16 +312,10 @@ function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiR
           'Three.js driver not detected! Click OK to download. If you have already installed the driver, please make sure port 11222 is open.'
         )
       ) {
-        if (OSName == 'Windows') {
-          window.location.href = 'http://look.glass/threejsdriver_win'
-        } else if (OSName == 'MacOS') {
-          window.location.href = 'http://look.glass/threejsdriver_mac'
-        } else {
-          alert(
-            'Only Windows and OSX operating systems are currently supported for the Three.js library.'
-          )
-        }
+        window.location.href = 'http://look.glass/threejsdriver'
       }
+      applyCalibration(null)
+      initialized = true
       finished()
     }
   }
@@ -665,5 +672,3 @@ function HoloPlay(scene, camera, renderer, focalPointVector, constantCenter, hiR
   //Call our initialization function once all our values are set
   init()
 }
-
-export default HoloPlay
