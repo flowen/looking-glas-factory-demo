@@ -3,7 +3,7 @@ import './scss/index.scss'
 import HoloPlay from './lib/holoplay'
 
 import { Math as tMath, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from 'three'
-import { EffectComposer } from 'postprocessing'
+// import { EffectComposer } from 'postprocessing'
 
 import { audio, listener } from './objects/Audio'
 import { audioUtil, analyser, bands } from './utils/analyser'
@@ -15,25 +15,24 @@ import { AudioResolver } from './loader/resolvers/AudioResolver'
 import CustomG from './objects/CustomG'
 import WireframeG from './objects/WireframeG'
 import OrbitControls from './controls/OrbitControls'
-import PPmanager from './controls/PostprocessingManager'
+// import PPmanager from './controls/PostprocessingManager'
 
 /* Init renderer and canvas */
 const container = document.getElementsByTagName('main')[0]
 const renderer = new WebGLRenderer()
 container.style.overflow = 'hidden'
 container.style.margin = 0
-
 container.appendChild(renderer.domElement)
 renderer.setClearColor(0x120707)
 
-let composer = new EffectComposer(renderer)
+// let composer = new EffectComposer(renderer)
 
 /* Main scene and camera */
 const scene = new Scene()
 const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.z = 100
 
-const holoplay = new HoloPlay(scene, camera, composer)
+const holoplay = new HoloPlay(scene, camera, renderer)
 
 /* controls */
 const controls = new OrbitControls(camera, {
@@ -75,7 +74,7 @@ function onResize() {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)
-  composer.setSize(window.innerWidth, window.innerHeight)
+  // composer.setSize(window.innerWidth, window.innerHeight)
 }
 window.addEventListener('resize', onResize)
 
@@ -95,7 +94,7 @@ preloader
     },
   ])
   .then(() => {
-    PPmanager.init()
+    // PPmanager.init()
     onResize()
 
     const audioBuffer = preloader.get('soundTrack')
@@ -105,6 +104,10 @@ preloader
     // audio.offset = 213 // for testing purposes, starts at end of the track
     start()
   })
+
+/**
+  Render loop
+*/
 
 function start() {
   if (!screenStart.classList.contains('hidden')) screenStart.classList.add('hidden')
@@ -116,17 +119,9 @@ function start() {
 
 const end = () => screenEnd.classList.remove('hidden')
 
-/**
-  RAF
-*/
-
 function loop() {
   audio.isPlaying ? (requestAnimationFrame(loop), render()) : end()
 }
-
-/**
-  Render loop
-*/
 
 let time = 0
 let tprev = 0
@@ -168,20 +163,22 @@ function render() {
   wireframeG.updateColor(lowAvg, midAvg, highAvg)
 
   /* camera */
-  camera.lookAt(customG.position)
   camera.setFocalLength(tMath.mapLinear(lowAvg, 0, 1, 20, 30))
+  camera.lookAt(customG.position)
 
-  PPmanager.blurControls(
-    tMath.mapLinear(highAvg, 0, 1, 0.7, 0.9),
-    tMath.mapLinear(highAvg, 0, 1, 0.5, 0.7)
-  )
-  PPmanager.bloomControls(tMath.mapLinear(lowAvg, 0, 1, 0.0001, 1), intensity)
-  PPmanager.scanlineControls(tMath.mapLinear(lowAvg, 0, 1, 0.1, 5), intensity)
+  // PPmanager.blurControls(
+  //   tMath.mapLinear(highAvg, 0, 1, 0.7, 0.9),
+  //   tMath.mapLinear(highAvg, 0, 1, 0.5, 0.7)
+  // )
+  // PPmanager.bloomControls(tMath.mapLinear(lowAvg, 0, 1, 0.0001, 1), intensity)
+  // PPmanager.scanlineControls(tMath.mapLinear(lowAvg, 0, 1, 0.1, 5), intensity)
 
   controls.update()
 
-  composer.render()
+  // composer.render()
+  // renderer.render(scene, camera)
   holoplay.render()
 }
 
-export { scene, composer, camera, listener }
+export { scene, camera, listener }
+// export { scene, composer, camera, listener }
