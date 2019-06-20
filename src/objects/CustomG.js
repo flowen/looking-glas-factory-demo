@@ -7,6 +7,7 @@ import {
   MeshStandardMaterial,
   Mesh,
   Vector3,
+  Color,
 } from 'three'
 
 export default class CustomG extends Object3D {
@@ -14,31 +15,29 @@ export default class CustomG extends Object3D {
     super()
 
     const geometry = new Geometry()
-    const dist = 10
 
-    for (let i = 0; i < 360; i++) {
-      const x1 = Math.sin(tMath.radToDeg(i)) * dist
-      const x2 = Math.sin(tMath.radToDeg(i)) * dist
-      const x3 = Math.sin(tMath.radToDeg(i)) * dist
+    const length = 10
+    const color = new Color(0xffaa00)
 
-      const y1 = Math.cos(tMath.radToDeg(i)) * dist
-      const y2 = Math.cos(tMath.radToDeg(i)) * dist
-      const y3 = Math.cos(tMath.radToDeg(i)) * dist
+    const totalBlades = 10
 
-      const z1 = Math.cos(tMath.radToDeg(i)) * dist
-      const z2 = Math.cos(tMath.radToDeg(i)) * dist
-      const z3 = Math.sin(tMath.radToDeg(i)) * dist
+    for (let j = 0; j < totalBlades + 1; j++) {
+      for (let i = 0; i < 7; i++) {
+        const v1 = new Vector3(0, i * length, Math.PI * j + 25)
+        const v2 = new Vector3(length * 3 * i, i * length + 0.5 * length, Math.PI * j + 25)
+        const v3 = new Vector3(0, i * length + length, Math.PI * j * 25)
 
-      for (let j = 0; j < 7; ++j) {
-        const v1 = new Vector3(x1 * j, y2 * j, z3 * (3 * j) * Math.PI)
-        const v2 = new Vector3(x3 * j, y1 * j, z2 * (3 * j) * Math.TWO_PI)
-        const v3 = new Vector3(x2 * j, y3 * j, z2 * (3 * j) * Math.TWO_PI)
+        geometry.vertices.push(v1, v2, v3)
 
-        geometry.vertices.push(v1)
-        geometry.vertices.push(v2)
-        geometry.vertices.push(v3)
+        const face = new Face3(
+          i * 3 + j * 3,
+          i * 3 + 1 + (j * 3 + 1),
+          i * 3 + 2 + (j * 3 + 2),
+          null,
+          color
+        )
 
-        geometry.faces.push(new Face3(i, i + 1, i + 2))
+        geometry.faces.push(face)
       }
     }
 

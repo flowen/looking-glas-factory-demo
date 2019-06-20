@@ -2,7 +2,15 @@ import './scss/index.scss'
 
 import HoloPlay from './lib/holoplay'
 
-import { Math as tMath, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from 'three'
+import {
+  Math as tMath,
+  PerspectiveCamera,
+  PointLight,
+  Scene,
+  WebGLRenderer,
+  Vector3,
+  AmbientLight,
+} from 'three'
 // import { EffectComposer } from 'postprocessing'
 
 import { audio, listener } from './objects/Audio'
@@ -32,7 +40,7 @@ const scene = new Scene()
 const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.z = 100
 
-const holoplay = new HoloPlay(scene, camera, renderer)
+const holoplay = new HoloPlay(scene, camera, renderer, new Vector3(0, 0, 0), true, false)
 
 /* controls */
 const controls = new OrbitControls(camera, {
@@ -49,12 +57,12 @@ const frontLight = new PointLight(0xffcc66, 1)
 frontLight.position.x = 20
 frontLight.position.y = 12
 frontLight.position.z = 70
+scene.add(frontLight)
 
 const backLight = new PointLight(0xff66e4, 0.5)
 backLight.position.x = -20
 backLight.position.z = 65
-
-scene.add(frontLight, backLight)
+scene.add(backLight)
 
 /* Actual content of the scene */
 const customG = new CustomG()
@@ -63,7 +71,7 @@ customG.rotation.y = 45
 customG.rotation.z = 90
 scene.add(customG)
 
-const wireframeG = new WireframeG(200, 40)
+const wireframeG = new WireframeG(150, 100)
 scene.add(wireframeG)
 
 /* Audio */
@@ -101,7 +109,7 @@ preloader
     audio.setBuffer(audioBuffer)
     audio.setLoop(false)
     audio.setVolume(0.5)
-    // audio.offset = 213 // for testing purposes, starts at end of the track
+    audio.offset = 153 // for testing purposes, starts at end of the track
     start()
   })
 
@@ -131,17 +139,17 @@ function render() {
   const freqs = audioUtil.frequencies()
 
   // update average of bands
-  const subAvg = average(analyser, freqs, bands.sub.from, bands.sub.to)
+  // const subAvg = average(analyser, freqs, bands.sub.from, bands.sub.to)
   const lowAvg = average(analyser, freqs, bands.low.from, bands.low.to)
   const midAvg = average(analyser, freqs, bands.mid.from, bands.mid.to)
   const highAvg = average(analyser, freqs, bands.high.from, bands.high.to)
+  const midAndHi = midAvg + highAvg
 
   // console.log(midAvg.toFixed(2), highAvg.toFixed(2), parseFloat(midAvg + highAvg).toFixed(2))
 
   tprev = time * 0.75
   time = 0.0025 + lowAvg + tprev
 
-  const midAndHi = midAvg + highAvg
   midAndHi > 0.96 ? (intensity = tMath.mapLinear(midAndHi, 0, 1.5, 1, 20)) : (intensity = 1)
 
   frontLight.intensity = lowAvg * 2.5 * intensity
@@ -151,20 +159,20 @@ function render() {
   const yRotation = Math.cos(Math.PI * 7.5) + time
 
   customG.rotation.x = xRotation
-  if (subAvg > 0.85) customG.rotation.x += subAvg
+  if (lowAvg > 0.85) customG.rotation.x += lowAvg
 
   customG.rotation.y = yRotation
   customG.rotation.z += 0.005
 
-  wireframeG.rotation.x = Math.sin(Math.PI * 0.5) + time / 10
-  wireframeG.rotation.y = Math.cos(Math.PI * 0.5) + time / 10
-  wireframeG.rotation.z -= 0.0025
+  wireframeG.rotation.x = Math.sin(Math.PI * 0.5) + time / 7
+  wireframeG.rotation.y = Math.cos(Math.PI * 0.5) + time / 7
+  wireframeG.rotation.z -= 0.005
 
-  wireframeG.updateColor(lowAvg, midAvg, highAvg)
+  wireframeG.updateColor(lowAvg, midAvg)
 
   /* camera */
-  camera.setFocalLength(tMath.mapLinear(lowAvg, 0, 1, 20, 30))
-  camera.lookAt(customG.position)
+  camera.setFocalLength(tMath.mapLinear(lowAvg, 0, 1, 20, 50))
+  // camera.lookAt(customG.position)
 
   // PPmanager.blurControls(
   //   tMath.mapLinear(highAvg, 0, 1, 0.7, 0.9),

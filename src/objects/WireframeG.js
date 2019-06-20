@@ -1,4 +1,15 @@
-import { Color, Object3D, Math as tMath, SphereGeometry, Mesh, MeshBasicMaterial } from 'three'
+import {
+  BufferGeometry,
+  Color,
+  Object3D,
+  Math as tMath,
+  SphereGeometry,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+} from 'three'
+
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 var spheres = []
 var color = new Color(0, 0, 0)
@@ -7,40 +18,45 @@ class WireframeG extends Object3D {
   constructor(totalSize, sphereSize) {
     super()
 
-    var sphereMaterial = new MeshBasicMaterial({
+    // our futur array of bufferGeometry
+    const spheres = []
+
+    const geo = new BufferGeometry().fromGeometry(new SphereGeometry(sphereSize, 5, 5))
+
+    for (var i = 0; i < totalSize; i++) {
+      // instead of creating a new geometry, we just clone the bufferGeometry instance
+      const geometry = geo.clone()
+      geometry.applyMatrix(
+        new Matrix4().makeTranslation(Math.random() * 1000 - 500, Math.random() * 1000 - 500, 0)
+      )
+      geometry.rotateX(Math.random() * 1)
+      geometry.rotateY(Math.random() * 1)
+      // then, we push this bufferGeometry instance in our array
+      spheres.push(geometry)
+    }
+
+    const geometriesSpheres = BufferGeometryUtils.mergeBufferGeometries(spheres)
+
+    const sphereMaterial = new MeshBasicMaterial({
       wireframeLinewidth: 1,
       wireframe: true,
       transparent: true,
       opacity: 0.075,
     })
 
-    for (var x = -totalSize / 2; x < totalSize + sphereSize; x = x + sphereSize) {
-      for (var y = -totalSize / 2; y < totalSize + sphereSize; y = y + sphereSize) {
-        for (var z = -totalSize / 2; z < totalSize + sphereSize; z = z + sphereSize) {
-          var sphereGeometry = new SphereGeometry(sphereSize, 5, 5)
-          var sphere = new Mesh(sphereGeometry, sphereMaterial)
-          sphere.position.x = x + Math.random() * 50
-          sphere.position.y = y + Math.random() * 50
-          sphere.position.z = z + Math.random() * 50
-
-          spheres.push(sphere)
-          this.add(sphere)
-        }
-      }
-    }
+    this.mesh = new Mesh(geometriesSpheres, sphereMaterial)
+    this.add(this.mesh)
   }
 
-  updateColor(lowAvg, midAvg, highAvg) {
+  updateColor(lowAvg, midAvg) {
     const r = tMath.mapLinear(lowAvg, 0, 1, 20, 125)
     const g = tMath.mapLinear(midAvg, 0, 1, 125, 255)
     const b = 0
 
-    for (let i = 0; i < spheres.length; i++) {
-      color.r = r
-      color.g = g
-      color.b = b
-      spheres[i].material.color.set(color)
-    }
+    color.r = r
+    color.g = g
+    color.b = b
+    this.mesh.material.color.set(color)
   }
 }
 
