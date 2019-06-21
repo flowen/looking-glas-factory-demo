@@ -109,7 +109,7 @@ preloader
     audio.setBuffer(audioBuffer)
     audio.setLoop(false)
     audio.setVolume(0.5)
-    audio.offset = 153 // for testing purposes, starts at end of the track
+    //audio.offset = 153 // for testing purposes, starts at end of the track
     start()
   })
 
