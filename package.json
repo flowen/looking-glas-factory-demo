@@ -35,7 +35,7 @@
     "ios-safe-audio-context": "^1.0.1",
     "mouse-event-offset": "^3.0.2",
     "mouse-wheel": "^1.2.0",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "postcss-loader": "^3.0.0",
     "postprocessing": "^6.3.3",
     "sass-loader": "^7.1.0",
